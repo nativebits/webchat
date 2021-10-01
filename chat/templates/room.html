@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+
+    <title>Hello, world!</title>
+</head>
+<body>
+    {{ room_name|json_script:"room-name" }}
+    <script>
+        const roomname = JSON.parse(document.getElementById('room-name').textContent);
+        const chatSocket = new WebSocket(
+            'ws://' +
+            window.location.host +
+            '/ws/chat/' +
+            roomname +
+            '/'
+        );
+        chatSocket.onmessage = function(e){
+            const data = JSON.parse(e.data);
+            console.log(data.message)
+            if(data.tester && !document.querySelector('#chat-text').value.includes(data.tester)){
+                document.querySelector('#chat-text').value += (data.tester +'\n')
+            }
+            else if(data.message){
+                document.querySelector('#chat-text').value += (data.message +'\n')
+            }
+            
+             
+        document.querySelector("#submit").onclick = function(e){
+            const message = document.querySelector("#input");
+            const mes = message.value
+            console.log(mes)
+            chatSocket.send(JSON.stringify({
+                'message' : mes
+            }))
+        }
+        }
+    </script>
+    <div class="coontainer">
+        <div class="row d-flex justify-content-center">
+        <div class="col-6">
+            <form>
+                <div class="form-grop">
+                    <label for="textarea" class="h4 pt-5">ChatRoom</label>
+                    <textarea class = "form-control"id = "chat-text" rows="10"></textarea><br>
+                </div>
+                <div class="form-grop">
+                    <input class = "form-control" id ="input" type="text"><br>
+                </div>
+                <input class ="btn btn-secondary btn-dark"id ="submit" type="button" value="send">
+            </form>
+        </div>
+            
+        </div>
+    </div>
+
+
+
+
+</body>
+</html>
